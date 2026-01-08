@@ -38,23 +38,6 @@ A lightweight, end-to-end encrypted cloud storage system. Everything is encrypte
 4. **Encrypt & Upload** → Files encrypted locally, sent to your bucket
 5. **Restore on New Device** → Import key backup + configure storage
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- S3-compatible storage (Cloudflare R2, AWS S3, or similar)
-
-### Installation & Running
-
-```bash
-git clone https://github.com/mx37/cloud-storage.git
-cd cloud-storage
-npm install
-npm run dev
-```
-
-Open `http://localhost:3003`
-
 ### Initial Setup
 
 1. **Create Your Keys**
