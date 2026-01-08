@@ -63,13 +63,13 @@ Root Files
 
 ## 🔑 Key Features
 
-✅ **Client-Side Encryption** - AES-256-GCM with local key generation
-✅ **Folder Organization** - Drag-and-drop file management
-✅ **Notes System** - Encrypted markdown notes with tags
-✅ **File Sharing** - Password-protected share links
-✅ **Multiple Devices** - Import keys to access files anywhere
-✅ **Direct Upload** - Browser → Your S3/R2 bucket (no proxy)
-✅ **Zero-Knowledge** - Provider can't see your data or keys
+- **Client-Side Encryption** - AES-256-GCM with local key generation
+- **Folder Organization** - Drag-and-drop file management
+- **Notes System** - Encrypted markdown notes with tags
+- **File Sharing** - Password-protected share links
+- **Multiple Devices** - Import keys to access files anywhere
+- **Direct Upload** - Browser → Your S3/R2 bucket (no proxy)
+- **Zero-Knowledge** - Provider can't see your data or keys
 
 ## 🛠️ Tech Stack
 
