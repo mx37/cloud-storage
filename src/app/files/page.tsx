@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { FileUpload, FileUploadHandle } from "@/components/FileUpload";
 import { FileManager } from "@/components/FileManager";
 import { StorageSettings } from "@/components/StorageSettings";
-import { ManifestUnlock } from "@/components/ManifestUnlock";
 import { Button } from "@/components/ui/button";
 import { 
   CloudUpload, 
@@ -14,21 +13,19 @@ import {
   LogOut, 
   Shield,
   Loader,
-  Lock,
   Plus,
   X,
   HardDrive,
   Folder
 } from "lucide-react";
 import { isStorageConfigured, getStorageConfig } from "@/lib/settings";
-import { isManifestUnlocked, lockManifest, getFolders } from "@/lib/manifest";
+import { getFolders } from "@/lib/manifest";
 
 export default function FilesPage() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
   const [storageConfigured, setStorageConfigured] = useState(false);
-  const [manifestUnlocked, setManifestUnlocked] = useState(false);
   const [uploadKey, setUploadKey] = useState(0);
   const [showUploadPanel, setShowUploadPanel] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState<string | undefined>(undefined);
@@ -45,11 +42,9 @@ export default function FilesPage() {
 
   useEffect(() => {
     setStorageConfigured(isStorageConfigured());
-    setManifestUnlocked(isManifestUnlocked());
   }, [showSettings]);
 
   const handleLogout = async () => {
-    lockManifest();
     await logout();
     router.replace("/login");
   };
@@ -61,24 +56,13 @@ export default function FilesPage() {
 
   const handleConfigSaved = () => {
     setStorageConfigured(isStorageConfigured());
-    setManifestUnlocked(false);
-  };
-
-  const handleManifestUnlocked = () => {
-    setManifestUnlocked(true);
-    setUploadKey(prev => prev + 1);
-  };
-
-  const handleLockManifest = () => {
-    lockManifest();
-    setManifestUnlocked(false);
   };
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     dragCounterRef.current++;
-    if (e.dataTransfer.types.includes("Files") && manifestUnlocked) {
+    if (e.dataTransfer.types.includes("Files")) {
       setIsDragOver(true);
     }
   };
@@ -103,10 +87,6 @@ export default function FilesPage() {
     e.stopPropagation();
     setIsDragOver(false);
     dragCounterRef.current = 0;
-
-    if (!manifestUnlocked) {
-      return;
-    }
 
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
@@ -186,18 +166,6 @@ export default function FilesPage() {
 
             {/* User info & actions */}
             <div className="flex items-center gap-1 sm:gap-2">
-              {manifestUnlocked && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleLockManifest}
-                  className="text-white/40 hover:text-amber-400 h-8 w-8 sm:h-9 sm:w-9"
-                  title="Lock files"
-                >
-                  <Lock className="h-4 w-4" />
-                </Button>
-              )}
-
               <Button
                 variant="ghost"
                 size="icon"
@@ -245,11 +213,6 @@ export default function FilesPage() {
               Open Settings
             </Button>
           </div>
-        ) : !manifestUnlocked ? (
-          <ManifestUnlock 
-            config={getStorageConfig()!} 
-            onUnlocked={handleManifestUnlocked} 
-          />
         ) : (
           <div className="flex flex-col h-[calc(100vh-7rem)] sm:h-[calc(100vh-8rem)]">
             <FileManager 
@@ -262,7 +225,7 @@ export default function FilesPage() {
       </main>
 
       {/* Upload FAB */}
-      {manifestUnlocked && !showUploadPanel && currentSection !== "notes" && (
+      {!showUploadPanel && currentSection !== "notes" && (
         <button
           onClick={() => setShowUploadPanel(true)}
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/25 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-30"

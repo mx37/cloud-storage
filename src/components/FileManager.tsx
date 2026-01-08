@@ -74,7 +74,6 @@ import {
   deleteFolder,
   renameFolder,
   renameFile,
-  syncManifest,
   Folder as FolderType,
   getMasterKey
 } from "@/lib/manifest";
@@ -410,22 +409,17 @@ export function FileManager({ refreshTrigger, onFolderChange, onSectionChange }:
     }
   }, [section, notesInitialized, loadNotes]);
 
-  // Sync manifest from server and reload files
-  const syncAndReload = useCallback(async () => {
-    const config = getStorageConfig();
-    if (!config) return;
-
+  // Reload files and notes
+  const reloadData = useCallback(async () => {
     try {
-      await syncManifest(config);
       loadFiles();
       
-      // Also sync notes if initialized
+      // Also reload notes if initialized
       if (isNotesInitialized()) {
-        await syncNotes(config);
         loadNotes();
       }
     } catch (error) {
-      console.error("Auto-refresh failed:", error);
+      console.error("Reload failed:", error);
     }
   }, [loadFiles, loadNotes]);
 
@@ -438,7 +432,7 @@ export function FileManager({ refreshTrigger, onFolderChange, onSectionChange }:
 
     if (autoRefreshEnabled && autoRefreshInterval > 0) {
       autoRefreshTimerRef.current = setInterval(() => {
-        syncAndReload();
+        reloadData();
       }, autoRefreshInterval * 1000);
     }
 
@@ -447,7 +441,7 @@ export function FileManager({ refreshTrigger, onFolderChange, onSectionChange }:
         clearInterval(autoRefreshTimerRef.current);
       }
     };
-  }, [autoRefreshEnabled, autoRefreshInterval, syncAndReload]);
+  }, [autoRefreshEnabled, autoRefreshInterval, reloadData]);
 
   // Save auto-refresh settings to localStorage
   useEffect(() => {
@@ -1273,7 +1267,7 @@ export function FileManager({ refreshTrigger, onFolderChange, onSectionChange }:
                   )}
                 </div>
                 <button
-                  onClick={() => { syncAndReload(); setShowRefreshSettings(false); }}
+                  onClick={() => { reloadData(); setShowRefreshSettings(false); }}
                   className="w-full p-3 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="h-4 w-4" />

@@ -107,12 +107,6 @@ function loadFromSessionCache(): Manifest | null {
   return null;
 }
 
-// Check if manifest is unlocked in this session
-export function isManifestUnlocked(): boolean {
-  if (typeof sessionStorage === "undefined") return false;
-  return sessionStorage.getItem(SESSION_UNLOCKED_KEY) === "true" && manifestCache !== null;
-}
-
 // Check if manifest exists in storage
 export async function manifestExists(config: StorageConfig): Promise<boolean> {
   try {
@@ -170,45 +164,6 @@ export async function unlockManifest(
   }
 
   return manifest;
-}
-
-// Sync manifest from server (re-download and decrypt)
-// Use this to refresh file list from server without re-entering private key
-export async function syncManifest(config: StorageConfig): Promise<Manifest | null> {
-  // Must have cached master key
-  if (!masterKeyCache) {
-    console.warn("Cannot sync manifest: not unlocked");
-    return null;
-  }
-
-  try {
-    // Download fresh manifest from server
-    const encryptedManifest = await downloadFromStorage(config, MANIFEST_KEY);
-    const manifest = await decryptManifest(encryptedManifest, masterKeyCache);
-
-    // Update cache
-    manifestCache = manifest;
-    saveToSessionCache(manifest);
-
-    return manifest;
-  } catch (error) {
-    console.error("Failed to sync manifest:", error);
-    return null;
-  }
-}
-
-// Lock manifest (clear from memory)
-export function lockManifest(): void {
-  manifestCache = null;
-  masterKeyCache = null;
-  
-  // Clear notes cache as well
-  clearNotesCache();
-  
-  if (typeof sessionStorage !== "undefined") {
-    sessionStorage.removeItem(SESSION_CACHE_KEY);
-    sessionStorage.removeItem(SESSION_UNLOCKED_KEY);
-  }
 }
 
 // Get current manifest (from cache)
